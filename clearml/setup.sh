@@ -5,6 +5,8 @@ echo "Running setup script."
 source /root/miniconda3/bin/activate
 conda activate safedreamer-env
 
+pip install clearml
+
 # go to the repo directory
 cd $CLEARML_GIT_ROOT
 
