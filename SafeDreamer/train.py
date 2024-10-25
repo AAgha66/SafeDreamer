@@ -4,6 +4,7 @@ import pathlib
 import sys
 import warnings
 from functools import partial as bind
+import clearml
 
 warnings.filterwarnings('ignore', '.*box bound precision lowered.*')
 warnings.filterwarnings('ignore', '.*using stateful random seeds*')
@@ -27,9 +28,23 @@ def main(argv=None):
 
   parsed, other = embodied.Flags(configs=['defaults']).parse_known(argv)
   config = embodied.Config(agt.Agent.configs['defaults'])
-  for name in parsed.configs:
-    config = config.update(agt.Agent.configs[name])
-  config = embodied.Flags(config).parse(other)
+  if "--local" in other:
+    for name in parsed.configs:
+      config = config.update(agt.Agent.configs[name])
+    config = embodied.Flags(config).parse(other[:-1])
+  else:
+    task = clearml.Task.init()
+    task_params = task.get_parameters_as_dict(cast=True)
+    d = task_params["internal"]    
+    config = config.update(agt.Agent.configs[d["config"]])
+    other = []
+    print(d)
+    for k, v in d.items():
+        other.append(k)
+        other.append(v)
+    print(other)
+    print("*****************")
+    config = embodied.Flags(config).parse(other)
   now_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
   logdir_algo = config.logdir + now_time + '_' + str(config.method) + '_' + str(config.task) + '_' + str(config.seed)
   args = embodied.Config(
