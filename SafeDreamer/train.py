@@ -40,8 +40,9 @@ def main(argv=None):
     other = []
     print(d)
     for k, v in d.items():
-        other.append(k)
-        other.append(v)
+        if d!="--config":
+          other.append(k)
+          other.append(v)
     print(other)
     print("*****************")
     config = embodied.Flags(config).parse(other)
