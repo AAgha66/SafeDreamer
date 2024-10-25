@@ -36,7 +36,7 @@ def main(argv=None):
     task = clearml.Task.init()
     task_params = task.get_parameters_as_dict(cast=True)
     d = task_params["internal"]    
-    config = config.update(agt.Agent.configs[d["config"]])
+    config = config.update(agt.Agent.configs[d["--config"]])
     other = []
     print(d)
     for k, v in d.items():
