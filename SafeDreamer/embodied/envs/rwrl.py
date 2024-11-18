@@ -16,6 +16,7 @@ class RWRL(embodied.Env):
         os.environ['MUJOCO_GL'] = 'egl'
     import realworldrl_suite.environments as rwrl    
     self.constraint_idx = CONSTRAINT_IDX[env]
+    self._camera = 2 if env == "quadruped" else 0
     env = rwrl.load(
             domain_name=env,
             task_name=TASKS[env],
@@ -42,6 +43,10 @@ class RWRL(embodied.Env):
     spaces["cost"] = embodied.Space(np.bool, ())
     if self._render:
       spaces['image'] = embodied.Space(np.uint8, self._size + (3,))
+      keys = list(spaces.keys())
+      for k in keys:
+        if k not in ["reward", "is_first", "is_last", "is_terminal", "image", "cost"]:
+            del spaces[k]
     return spaces
 
   @functools.cached_property
@@ -72,13 +77,25 @@ class RWRL(embodied.Env):
             obs['cost'] = np.float32(cost)
     if self._render:
       obs['image'] = self.render()
+      keys = list(obs.keys())
+      for k in keys:
+        if k not in ["reward", "is_first", "is_last", "is_terminal", "image", "cost"]:
+            del obs[k]
     return obs
 
   def _reset(self):
     obs = self._env.step({'reset': True})
     obs["cost"] = obs["constraints"][self.constraint_idx]
     del obs["constraints"]
+    if self._render:
+      obs['image'] = self.render()
+      keys = list(obs.keys())
+      for k in keys:
+        if k not in ["reward", "is_first", "is_last", "is_terminal", "image", "cost"]:
+            del obs[k]
     return obs
 
   def render(self):
-    return self._dmenv.render()
+     return self._dmenv.physics.render(
+            *self._size, camera_id=self._camera
+        )
