@@ -60,6 +60,8 @@ defaults:
     safetygym: {size: [64,64], repeat: 1, render: False, obs_key: 'observation', camera_name: 'fixedfar'}
     safetygymcoor: {size: [64,64], repeat: 5, render: False, obs_key: 'observation', camera_name: 'fixedfar'}
     safetygymmujoco: {size: [64,64], repeat: 1, render: False, obs_key: 'observation'}
+    rwrl: {size: [64,64], repeat: 2, render: True, obs_key: 'image'}
+
   # Agent
   task_behavior: Greedy
   expl_behavior: None
